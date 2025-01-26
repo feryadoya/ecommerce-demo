@@ -22,6 +22,10 @@ public class CouponService {
     }
 
     public Coupon createCoupon(Coupon coupon) {
+        Coupon existingCoupon = couponRepository.findByCode(coupon.getCode()).orElse(null);
+        if (existingCoupon != null) {
+            coupon.setId(existingCoupon.getId());
+        }
         return couponRepository.save(coupon);
     }
 

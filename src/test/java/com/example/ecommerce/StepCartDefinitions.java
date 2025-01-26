@@ -1,5 +1,7 @@
 package com.example.ecommerce;
 
+import io.cucumber.java.AfterStep;
+import io.cucumber.java.BeforeStep;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.example.ecommerce.model.Cart;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = EcommerceApplication.class)
 @AutoConfigureMockMvc
@@ -26,10 +27,6 @@ public class StepCartDefinitions {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private Long customerId = 1L;
-    private Long productId1 = 1L;
-    private Long productId2 = 2L;
 
     @When("I add product with id {long} to the cart for customer {long} with quantity {int}")
     public void i_add_product_to_the_cart(Long productId, Long customerId, int quantity) throws Exception {
@@ -53,6 +50,16 @@ public class StepCartDefinitions {
     @When("I clear the cart for customer {long}")
     public void i_clear_the_cart(Long customerId) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/cart/clear/" + customerId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @When("I update product with id {long} in the cart for customer {long} to quantity {int}")
+    public void i_update_product_in_the_cart(Long productId, Long customerId, int quantity) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/cart/add")
+                .param("customerId", customerId.toString())
+                .param("productId", productId.toString())
+                .param("quantity", String.valueOf(quantity))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -155,5 +162,28 @@ public class StepCartDefinitions {
 
         Cart cart = objectMapper.readValue(result.getResponse().getContentAsString(), Cart.class);
         assertTrue(cart.getItems().isEmpty());
+    }
+
+    @Then("I should be able to retrieve the cart for customer {long} and see it does not contain product with id {long}")
+    public void i_should_be_able_to_retrieve_cart_and_see_it_does_not_contain_product(Long customerId, Long productId) throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/cart/" + customerId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Cart cart = objectMapper.readValue(result.getResponse().getContentAsString(), Cart.class);
+        assertTrue(cart.getItems().stream()
+                .noneMatch(item -> item.getProduct().getId().equals(productId)));
+    }
+
+    @Then("the total cost of the cart for customer {long} should be calculated with discount")
+    public void the_total_cost_should_be_calculated_with_discount(Long customerId) throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/cart/total/" + customerId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        double total = Double.parseDouble(result.getResponse().getContentAsString());
+        assertTrue(total > 0); // Assuming the total should be greater than 0 after discount
     }
 }

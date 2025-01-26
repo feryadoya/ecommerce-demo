@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
 
 @Entity
 public class Cart {
@@ -19,7 +20,7 @@ public class Cart {
     @OneToOne
     private Customer customer;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items;
 
     @OneToOne

@@ -25,7 +25,7 @@ public class CartController {
 
     @GetMapping("/{customer-id}")
     @Operation(summary = "Get cart", description = "Retrieve the cart for a specific customer")
-    public ResponseEntity<Cart> getCart(@PathVariable Long customerId) {
+    public ResponseEntity<Cart> getCart(@PathVariable("customer-id") Long customerId) {
         Cart cart = cartService.findByCustomer(customerId);
         return cart != null ? ResponseEntity.ok(cart) : ResponseEntity.notFound().build();
     }
@@ -46,14 +46,14 @@ public class CartController {
 
     @PostMapping("/clear/{customer-id}")
     @Operation(summary = "Clear cart", description = "Clear the cart for a specific customer")
-    public ResponseEntity<Cart> clearCart(@PathVariable Long customerId) {
+    public ResponseEntity<Cart> clearCart(@PathVariable("customer-id") Long customerId) {
         Cart cart = cartService.clearCart(customerId);
         return ResponseEntity.ok(cart);
     }
 
     @GetMapping("/total/{customer-id}")
     @Operation(summary = "Calculate total", description = "Calculate the total cost of the cart for a specific customer")
-    public ResponseEntity<Double> calculateTotal(@PathVariable Long customerId) {
+    public ResponseEntity<Double> calculateTotal(@PathVariable("customer-id") Long customerId) {
         double total = cartService.calculateTotal(customerId);
         return ResponseEntity.ok(total);
     }
