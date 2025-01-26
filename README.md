@@ -23,7 +23,7 @@ This is a simple e-commerce demo application built with Spring Boot. It provides
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/ecommerce-demo.git
+    git clone https://github.com/feyadoya/ecommerce-demo.git
     cd ecommerce-demo
     ```
 
