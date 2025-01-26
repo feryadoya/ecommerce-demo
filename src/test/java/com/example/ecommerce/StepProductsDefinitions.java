@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.example.ecommerce.model.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Arrays;
 import java.util.List;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -83,7 +85,7 @@ public class StepProductsDefinitions {
                 .andExpect(status().isNotFound())
                 .andReturn();
 
-        assertNull(result.getResponse().getContentAsString());
+        assertEquals("", result.getResponse().getContentAsString());
     }
 
     @Then("I should be able to retrieve all products and see {string} and {string}")
@@ -92,7 +94,7 @@ public class StepProductsDefinitions {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        List<Product> products = objectMapper.readValue(result.getResponse().getContentAsString(), List.class);
+        List<Product> products = Arrays.asList(objectMapper.readValue(result.getResponse().getContentAsString(), Product[].class));
         boolean foundName1 = products.stream().anyMatch(p -> name1.equals(p.getName()));
         boolean foundName2 = products.stream().anyMatch(p -> name2.equals(p.getName()));
 
