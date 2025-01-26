@@ -52,10 +52,6 @@ public class Cart {
         return items;
     }
 
-    public void setItems(List<CartItem> items) {
-        this.items = items;
-    }
-
     public Coupon getCoupon() {
         return coupon;
     }
